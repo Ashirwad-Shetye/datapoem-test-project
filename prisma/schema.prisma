@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  image    String
+  name     String?
+  comments Comment[]
+}
+
+model Comment {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  message       String
+  score         Int
+  createdAt     DateTime? @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String    @db.ObjectId
+  parentId      String?   @db.ObjectId
+  parent        Comment?  @relation("ChildComments", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childComments Comment[] @relation("ChildComments")
+}
